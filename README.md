@@ -1,28 +1,56 @@
 Introduce
 =========
-### Translation: [English](https://github.com/PatrickLib/captcha_recognize/blob/master/README.md) [中文](https://github.com/PatrickLib/captcha_recognize/blob/master/README-zhcn.md)
+### Translation: [English](https://github.com/NaiveWang/captcha_recognize/blob/master/README.md) ~[中文](https://github.com/NaiveWang/captcha_recognize/blob/master/README-zhcn.md)~
 
-image recognition captchas using TensorFlow, no need image segmentation, run on ubuntu 16.04, python 2.7
+CAPTCHA recognizing from with TensorFlow 1.14 GPU, preprocessing added(elimitate bars and stripes), run on Arch Linux with fresh cuda, python 3.7
 
-![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/CMQVA_num717_1.png)![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/CMQZJ_num908_1.png)![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/CRGEU_num339_1.png)![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/CZHBN_num989_1.png)![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/DZPEW_num388_1.png)![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/CZWED_num21_1.png)
+This fork could recover from checkpoints, code has been modified to be compatible with python3 and latest tensorflow. Some utility tools has also been added to this fork to help with web spiders and raw dataset labeling.
 
-accuracy 99.7% judged by captcha_eval.py, training size 50000, after 20000 steps
-captcha generator: https://github.com/lepture/captcha
-
-![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/1ab2s_num286.jpg)![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/1ezx8_num398.jpg)![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/1iv22_num346.jpg)![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/1kxw2_num940.jpg)![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/3mtj9_num765.jpg)![captcha](https://raw.githubusercontent.com/PatrickLib/captcha_recognition/master/data/test_data/1vuy5_num17.jpg)
-
-accuracy 52.1% judged by captcha_eval.py, training size 100000, after 200000 steps
-captcha generator: https://github.com/Gregwar/CaptchaBundle
- 
 Dependence
 ==========
-### python 2.7
-### Anaconda2 4.3.1
-https://www.continuum.io/downloads#linux
-### TensorFlow 1.1
-https://github.com/tensorflow/tensorflow
-### captcha
-https://pypi.python.org/pypi/captcha/0.1.1
+
+### core `train` `recognize`
+
+> system : linux ( prefer arch linux distros )
+
+For an arch distro, there is no need to install specific version of cuda to match with tensorflow which is installed on pip, instead, installing both fresh cuda and tensorflow-opt-cuda from package manager **pacman** will suit deep learning rigs perfectly.
+
+*Windows is deprecated due to directory conflicts.*
+
+> python : python 3.x ( prefer python3.7)
+
+> tensorflow/tensorflow-gpu 1.14.0 (gpu)
+
+to test if your gpu rigs are working properly, please run this python3 [script](https://github.com/NaiveWang/Just_for_Fun/blob/master/Others/linux_gadgets/gpu_check_tensorflow.py) to check.
+
+~### captcha~
+~https://pypi.python.org/pypi/captcha/0.1.1~
+
+**notice :**
+
+**in this fork there is no need to generate captcha ourselves, we will claw and in some case automate them in purpose. While only methordology and local instance is provided for skirting privacy issues.**
+
+### label marker `manual labelng` `permitive steps`
+
+To boost label marking steps, a small flask web server is added to this fork, it grabs target captcha from local or target webset and show captcha on the web page, then type the captcha and submit, finally the labeled image will be stored locally.
+
+> python flask
+
+### preprocessor `image preprocessing` `noise elimiting`
+
+some captcha has stripes and bars to mess up with automation, but in some case, some opencv and pixel algorithms could help with it.
+
+> opencv-python
+
+> pillow
+
+### captcha crawler kit `automated labeling` `post steps`
+
+>python flask
+
+>selemium
+
+### captcha recognize server
 
 Usage
 =====
@@ -64,4 +92,3 @@ result like this
 image WFPMX_num552.png recognize ----> 'WFPMX'
 image QUDKM_num468.png recognize ----> 'QUDKM'
 ```
-

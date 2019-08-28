@@ -28,7 +28,7 @@ def run_train():
   with tf.Graph().as_default():
     images, labels = captcha.inputs(train=True, batch_size=192)
 
-    logits = captcha.inference(images, keep_prob=0.6)
+    logits = captcha.inference(images, keep_prob=0.5)
 
     loss = captcha.loss(logits, labels)
 
@@ -36,8 +36,8 @@ def run_train():
 
     saver = tf.compat.v1.train.Saver()
 
-    init_op = tf.group(tf.global_variables_initializer(),
-                       tf.local_variables_initializer())
+    init_op = tf.group(tf.compat.v1.global_variables_initializer(),
+                       tf.compat.v1.local_variables_initializer())
 
     sess = tf.compat.v1.Session()
 

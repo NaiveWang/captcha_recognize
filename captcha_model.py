@@ -6,6 +6,7 @@ import tensorflow as tf
 import captcha_input
 import config
 
+
 IMAGE_WIDTH = config.IMAGE_WIDTH
 IMAGE_HEIGHT = config.IMAGE_HEIGHT
 CLASSES_NUM = config.CLASSES_NUM
@@ -45,38 +46,38 @@ def inference(images, keep_prob):
   images = tf.reshape(images, [-1, IMAGE_HEIGHT, IMAGE_WIDTH, 1])
   
   with tf.compat.v1.variable_scope('conv1') as scope:
-    kernel = _weight_variable('weights', shape=[3,3,1,64])
-    biases = _bias_variable('biases',[64])
+    kernel = _weight_variable('weights', shape=[7,7,1,82])
+    biases = _bias_variable('biases',[82])
     pre_activation = tf.nn.bias_add(_conv2d(images, kernel),biases)
     conv1 = tf.nn.relu(pre_activation, name=scope.name)
     
   pool1 = _max_pool_2x2(conv1, name='pool1')
   
-  with tf.variable_scope('conv2') as scope:
-    kernel = _weight_variable('weights', shape=[3,3,64,64])
-    biases = _bias_variable('biases',[64])
+  with tf.compat.v1.variable_scope('conv2') as scope:
+    kernel = _weight_variable('weights', shape=[7,7,82,82])
+    biases = _bias_variable('biases',[82])
     pre_activation = tf.nn.bias_add(_conv2d(pool1, kernel),biases)
     conv2 = tf.nn.relu(pre_activation, name=scope.name)
     
   pool2 = _max_pool_2x2(conv2, name='pool2')
   
-  with tf.variable_scope('conv3') as scope:
-    kernel = _weight_variable('weights', shape=[3,3,64,64])
-    biases = _bias_variable('biases',[64])
+  with tf.compat.v1.variable_scope('conv3') as scope:
+    kernel = _weight_variable('weights', shape=[7,7,82,82])
+    biases = _bias_variable('biases',[82])
     pre_activation = tf.nn.bias_add(_conv2d(pool2, kernel),biases)
     conv3 = tf.nn.relu(pre_activation, name=scope.name)
     
   pool3 = _max_pool_2x2(conv3, name='pool3')
   
-  with tf.variable_scope('conv4') as scope:
-    kernel = _weight_variable('weights', shape=[3,3,64,64])
-    biases = _bias_variable('biases',[64])
+  with tf.compat.v1.variable_scope('conv4') as scope:
+    kernel = _weight_variable('weights', shape=[7,7,82,82])
+    biases = _bias_variable('biases',[82])
     pre_activation = tf.nn.bias_add(_conv2d(pool3, kernel),biases)
     conv4 = tf.nn.relu(pre_activation, name=scope.name)
     
   pool4 = _max_pool_2x2(conv4, name='pool4')
   
-  with tf.variable_scope('local1') as scope:
+  with tf.compat.v1.variable_scope('local1') as scope:
     batch_size = images.get_shape()[0].value
     reshape = tf.reshape(pool4, [batch_size,-1])
     dim = reshape.get_shape()[1].value
@@ -86,7 +87,7 @@ def inference(images, keep_prob):
 
   local1_drop = tf.nn.dropout(local1, keep_prob)
 
-  with tf.variable_scope('softmax_linear') as scope:
+  with tf.compat.v1.variable_scope('softmax_linear') as scope:
     weights = _weight_variable('weights',shape=[1024,CHARS_NUM*CLASSES_NUM])
     biases = _bias_variable('biases',[CHARS_NUM*CLASSES_NUM])
     softmax_linear = tf.add(tf.matmul(local1_drop,weights), biases, name=scope.name)
@@ -99,11 +100,11 @@ def loss(logits, labels):
                   labels=labels, logits=logits, name='corss_entropy_per_example')
   cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
   tf.compat.v1.add_to_collection('losses', cross_entropy_mean)
-  return tf.add_n(tf.get_collection('losses'), name='total_loss')
+  return tf.add_n(tf.compat.v1.get_collection('losses'), name='total_loss')
 
 
 def training(loss):
-  optimizer = tf.compat.v1.train.AdamOptimizer(1e-4)
+  optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=1e-4)
   train_op = optimizer.minimize(loss)
   return train_op
 
