@@ -22,7 +22,7 @@ def _conv2d(value, weight):
 
 def _max_pool_2x2(value, name):
   """max_pool_2x2 downsamples a feature map by 2X."""
-  return tf.nn.max_pool(value, ksize=[1, 2, 2, 1],
+  return tf.nn.max_pool2d(value, ksize=[1, 2, 2, 1],
                         strides=[1, 2, 2, 1], padding='SAME', name=name)
 
 
@@ -30,7 +30,7 @@ def _weight_variable(name, shape):
   """weight_variable generates a weight variable of a given shape."""
   with tf.device('/cpu:0'):
     initializer = tf.truncated_normal_initializer(stddev=0.1)
-    var = tf.get_variable(name,shape,initializer=initializer, dtype=tf.float32)
+    var = tf.compat.v1.get_variable(name,shape,initializer=initializer, dtype=tf.float32)
   return var
 
 
@@ -38,13 +38,13 @@ def _bias_variable(name, shape):
   """bias_variable generates a bias variable of a given shape."""
   with tf.device('/cpu:0'):
     initializer = tf.constant_initializer(0.1)
-    var = tf.get_variable(name, shape, initializer=initializer,dtype=tf.float32)
+    var = tf.compat.v1.get_variable(name, shape, initializer=initializer,dtype=tf.float32)
   return var
   
 def inference(images, keep_prob):
   images = tf.reshape(images, [-1, IMAGE_HEIGHT, IMAGE_WIDTH, 1])
   
-  with tf.variable_scope('conv1') as scope:
+  with tf.compat.v1.variable_scope('conv1') as scope:
     kernel = _weight_variable('weights', shape=[3,3,1,64])
     biases = _bias_variable('biases',[64])
     pre_activation = tf.nn.bias_add(_conv2d(images, kernel),biases)
@@ -98,12 +98,12 @@ def loss(logits, labels):
   cross_entropy = tf.nn.softmax_cross_entropy_with_logits(
                   labels=labels, logits=logits, name='corss_entropy_per_example')
   cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
-  tf.add_to_collection('losses', cross_entropy_mean)
+  tf.compat.v1.add_to_collection('losses', cross_entropy_mean)
   return tf.add_n(tf.get_collection('losses'), name='total_loss')
 
 
 def training(loss):
-  optimizer = tf.train.AdamOptimizer(1e-4)
+  optimizer = tf.compat.v1.train.AdamOptimizer(1e-4)
   train_op = optimizer.minimize(loss)
   return train_op
 

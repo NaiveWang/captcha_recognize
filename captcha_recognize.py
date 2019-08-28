@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+#import os
+
 import argparse
 import sys
 import os.path
@@ -15,6 +17,8 @@ import captcha_model as captcha
 
 import config
 
+#os.environ['CUDA_VISABLE_DEVICES']='-1'
+
 IMAGE_WIDTH = config.IMAGE_WIDTH
 IMAGE_HEIGHT = config.IMAGE_HEIGHT
 
@@ -26,7 +30,7 @@ FLAGS = None
 
 def one_hot_to_texts(recog_result):
   texts = []
-  for i in xrange(recog_result.shape[0]):
+  for i in range(recog_result.shape[0]):
     index = recog_result[i]
     texts.append(''.join([CHAR_SETS[i] for i in index]))
   return texts

@@ -19,11 +19,11 @@ CHARS_NUM = config.CHARS_NUM
 def read_and_decode(filename_queue):
   reader = tf.TFRecordReader()
   _, serialized_example = reader.read(filename_queue)
-  features = tf.parse_single_example(
+  features = tf.io.parse_single_example(
       serialized_example,
       features={
-          'image_raw': tf.FixedLenFeature([], tf.string),
-          'label_raw': tf.FixedLenFeature([], tf.string),
+          'image_raw': tf.io.FixedLenFeature([], tf.string),
+          'label_raw': tf.io.FixedLenFeature([], tf.string),
       })
   image = tf.decode_raw(features['image_raw'], tf.int16)
   image.set_shape([IMAGE_HEIGHT * IMAGE_WIDTH])

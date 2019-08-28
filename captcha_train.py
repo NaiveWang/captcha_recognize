@@ -8,7 +8,17 @@ import argparse
 import sys
 
 import tensorflow as tf
+
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
+
+config = ConfigProto()
+config.gpu_options.allow_growth = True
+session = InteractiveSession(config=config)
+
 import captcha_model as captcha
+
+
 
 FLAGS = None
 
@@ -16,40 +26,49 @@ def run_train():
   """Train CAPTCHA for a number of steps."""
 
   with tf.Graph().as_default():
-    images, labels = captcha.inputs(train=True, batch_size=FLAGS.batch_size)
+    images, labels = captcha.inputs(train=True, batch_size=192)
 
-    logits = captcha.inference(images, keep_prob=0.5)
+    logits = captcha.inference(images, keep_prob=0.6)
 
     loss = captcha.loss(logits, labels)
 
     train_op = captcha.training(loss)
 
-    saver = tf.train.Saver(tf.global_variables())
+    saver = tf.compat.v1.train.Saver()
 
     init_op = tf.group(tf.global_variables_initializer(),
                        tf.local_variables_initializer())
 
-    sess = tf.Session()
+    sess = tf.compat.v1.Session()
 
-    sess.run(init_op)
-
+    #sess.run(init_op)
+    try:
+        #saver.restore(sess, FLAGS.checkpoint)
+        saver.restore(sess, tf.train.latest_checkpoint(FLAGS.checkpoint_dir))
+    except Exception as e:
+        print(e)
+        sess.run(init_op)
+        #exit()
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
     try:
+      _loss=100000
       step = 0
       while not coord.should_stop():
         start_time = time.time()
         _, loss_value = sess.run([train_op, loss])
         duration = time.time() - start_time
         if step % 10 == 0:
-          print('>> Step %d run_train: loss = %.2f (%.3f sec)' % (step, loss_value,
+          print('>> Step %d run_train: loss = %f (%.4f sec)' % (step, loss_value,
                                                      duration))
-        if step % 100 == 0:
-          print('>> %s Saving in %s' % (datetime.now(), FLAGS.checkpoint))
+        if _loss > loss_value:
+          print('>> %s STEP %d LOSS %f SPAN %.4f' % (datetime.now(), step, loss_value, duration))
           saver.save(sess, FLAGS.checkpoint, global_step=step)
+          _loss = loss_value
+        #open('learning.log', 'a').write(step.__str__()+'\t'+loss_value.__str__()+'\n')
         step += 1
     except Exception as e:
-      print('>> %s Saving in %s' % (datetime.now(), FLAGS.checkpoint))
+      #print('>> %s STEP:' % (datetime.now()))
       saver.save(sess, FLAGS.checkpoint, global_step=step)
       coord.request_stop(e)
     finally:
@@ -59,9 +78,10 @@ def run_train():
 
 
 def main(_):
-  if tf.gfile.Exists(FLAGS.train_dir):
-    tf.gfile.DeleteRecursively(FLAGS.train_dir)
-  tf.gfile.MakeDirs(FLAGS.train_dir)
+  #open("learning.log","w").write('')
+  #if tf.gfile.Exists(FLAGS.train_dir):
+  #  tf.gfile.DeleteRecursively(FLAGS.train_dir)
+  #tf.gfile.MakeDirs(FLAGS.train_dir)
   run_train()
 
 
@@ -80,10 +100,16 @@ if __name__ == '__main__':
       help='Directory where to write event logs.'
   )
   parser.add_argument(
+      '--checkpoint_dir',
+      type=str,
+      default='./captcha_train',
+      help='Directory where to restore checkpoint.'
+  )
+  parser.add_argument(
       '--checkpoint',
       type=str,
       default='./captcha_train/captcha',
       help='Directory where to write checkpoint.'
   )
   FLAGS, unparsed = parser.parse_known_args()
-  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+  tf.compat.v1.app.run(main=main, argv=[sys.argv[0]] + unparsed)

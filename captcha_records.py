@@ -59,6 +59,7 @@ def conver_to_tfrecords(data_set, name):
     width = image.shape[1]
     image_raw = image.tostring()
     label = data_set[index][1]
+    print(label)
     label_raw = label_to_one_hot(label).tostring()
     example = tf.train.Example(features=tf.train.Features(feature={
         'height': _int64_feature(height),
@@ -94,7 +95,7 @@ def create_data_list(image_dir):
     label_name = os.path.basename(file_name).split('_')[0]
     images.append(input_img)
     labels.append(label_name)
-  return zip(images, labels)
+  return list(zip(images, labels))
 
 
 def main(_):
